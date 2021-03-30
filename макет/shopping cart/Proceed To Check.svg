@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="279" height="67" viewBox="0 0 279 67">
+  <g id="Proceed_To_Check" data-name="Proceed To Check" transform="translate(-1053 -1113)">
+    <text id="SUB_TOTAL_900" data-name="SUB TOTAL         $900" transform="translate(1228 1125)" fill="#4a4a4a" font-size="11" font-family="SegoeUI, Segoe UI"><tspan x="0" y="0" xml:space="preserve">SUB TOTAL         $900</tspan></text>
+    <text id="GRAND_TOTAL_900" data-name="GRAND TOTAL      $900" transform="translate(1163 1155)" fill="#222" font-size="16" font-family="SegoeUI, Segoe UI"><tspan x="0" y="0" xml:space="preserve">GRAND TOTAL     </tspan><tspan y="0" xml:space="preserve" fill="#f16d7f"> $900</tspan></text>
+    <rect id="Shape_8" data-name="Shape 8" width="275" height="1" transform="translate(1053 1179)" fill="#e2e2e2"/>
+  </g>
+</svg>

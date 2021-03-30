@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="147" height="32" viewBox="0 0 147 32">
+  <g id="Product_Description" data-name="Product Description" transform="translate(-727 -1058)">
+    <text id="WOMEN_COLLECTION" data-name="WOMEN COLLECTION" transform="translate(800 1073)" fill="#f16d7f" font-size="14" font-family="SegoeUI, Segoe UI"><tspan x="-68.729" y="0">WOMEN COLLECTION</tspan></text>
+    <g id="Devider">
+      <g id="Shape_7" data-name="Shape 7" transform="translate(727 1088)" fill="#ef5b70" stroke="#eaeaea" stroke-linejoin="round" stroke-width="1">
+        <rect width="147" height="1" stroke="none"/>
+        <rect x="0.5" y="0.5" width="146" fill="none"/>
+      </g>
+      <rect id="Rectangle_28" data-name="Rectangle 28" width="63" height="3" transform="translate(769 1087)" fill="#ef5b70"/>
+    </g>
+  </g>
+</svg>

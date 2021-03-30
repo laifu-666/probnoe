@@ -1,0 +1,954 @@
+inner,right,left,cross,full join внутреннее соединение 
+full join and cross join 
+FULL JOIN customers ON orders.customer_id=customers.suppliers_id
+CROSS JOIN customers 
+DICTINCT -- убирает соответсвия 
+
+CREATE TABLE employee (   --создание таблицы
+employee_id INT PRIMARY KEY,
+first_name VARCHAR(255) NOT NULL,
+last_name VARCHAR(255) NOT NULL,
+manager_id INT,
+FOREIGN KEY(manager_id) REFERENCES employee(employee_id)); --создание ключа
+INSERT INTO employee(
+employee_id,
+first_name,
+last_name,
+manager_id
+)
+VALUES                  -- добавление знаечений в таблицу 
+(1,'ALex','Ovi',NULL),
+(2,'Sam','Cross',1),
+(3,'Anna','Lester',1),
+(4,'Barney','Stinson',2)
+
+SELECT e.first_name||''|| e.last_name AS employee, ||' '|| -- делаем пробел, а префиксы m,e -- это типо дубликаты таблицы мы их создаём
+	m.first_name||''|| m.last_name AS manager 
+FROM employee e
+LEFT JOIN employee m ON m.employee_id=e.manager_id
+ORDER BY manager -- соединяем по внешнему ключу эту же таблицу(типо 2 дубликата этой же таблицы)
+
+------ просто код
+
+SELECT order_date,product_name,ship_country,products.unit_price,quantity,discount
+FROM orders
+JOIN order_details ON orders.order_id=order_details.order_id
+JOIN products ON order_details.product_id=products.product_id
+
+------ просто код 
+
+----- том же самый код только короче )
+
+SELECT order_date,product_name,ship_country,products.unit_price,quantity,discount
+FROM orders
+JOIN order_details USING(order_id)
+JOIN products USING(product_id)
+
+----- да да просто короче 
+
+AS- псевдоним
+SELECT COUNT(*)AS employee_count
+FROM employees
+
+SELECT COUNT(DISTINCT country) AS country
+FROM employees
+
+нельзя юзать в HAVING и ORDER 
+условия не знают что такое псевдоним
+-------------
+
+SELECT category_id,SUM(units_in_stock)AS units_in_stock
+FROM products
+GROUP BY category_id
+ORDER BY units_in_stock DESC 
+LIMIT 5
+
+SELECT category_id,SUM(unit_price*units_in_stock)AS total_price
+FROM products
+WHERE discontinued <> 1
+GROUP BY category_id
+HAVING SUM(unit_price*units_in_stock)>5000
+ORDER BY total_price DESC
+
+------------
+
+WHERE ship_via = 'London' - условие поиска чего-нибудь(ищем заказчиков и сотрудников)
+
+GROUP BY - команда группировки 
+GROUP BY ... HAVING .... -- фильтрация
+SELECT * FROM имя_таблицы WHERE условие ORDER BY поле_для_сортировки
+
+
+------ первое задание 
+SELECT ship_via,ship_city,employees.city,customers.city,first_name,last_name,shippers.company_name
+FROM orders
+JOIN employees ON orders.employee_id=employees.employee_id
+JOIN customers ON customers.customer_id=orders.customer_id
+JOIN shippers ON shippers.shipper_id=orders.ship_via
+WHERE employees.city= 'London' AND customers.city = 'London' AND shippers.company_name = 'Speedy Express'
+--------------------
+
+------ третье и четвертое 
+SELECT company_name,order_id
+FROM orders
+RIGHT JOIN customers ON orders.customer_id = customers.customer_id
+WHERE order_id IS NULL
+
+SELECT company_name,order_id
+FROM customers
+LEFT JOIN orders ON customers.customer_id = orders.customer_id
+WHERE order_id IS NULL
+
+WHERE country IN ('Spain','USA')
+----------- вывели компании обьеденив по странам (и заказчики и поставщики)
+SELECT DISTINCT suppliers.company_name
+FROM suppliers
+JOIN customers USING(country)
+
+SELECT DISTINCT suppliers.country, suppliers.company_name,customers.country
+FROM suppliers
+JOIN customers USING(country)
+----------------------------------------- тоже самое что и сверху
+SELECT DISTINCT suppliers.country, suppliers.company_name,customers.country
+FROM suppliers
+JOIN customers USING(country)
+-------
+
+-----------------------все продукты больше 40
+SELECT product_name,units_in_stock
+FROM products
+WHERE units_in_stock>(SELECT AVG(units_in_stock) FROM products)
+ORDER BY units_in_stock - сортировка
+---------------------------
+
+SELECT company_name,contact_name
+FROM customers
+WHERE EXISTS(SELECT customer_id FROM orders               -- выполнение хотя б 1 условия
+			WHERE customer_id=customers.customer_id
+			AND freight BETWEEN 50 AND 100) между чем-то и чем-то
+			
+SELECT company_name,contact_name
+FROM customers
+WHERE EXISTS(SELECT customer_id FROM orders
+			WHERE customer_id=customers.customer_id
+			AND order_date BETWEEN '1995-02-01' AND '1995-02-15')
+------------------------
+SELECT DISTINCT company_name
+FROM customers 
+JOIN orders USING(customer_id) --настройка по внешнему ключу(с одинаковыми названиями)
+JOIN order_details USING(order_id)
+WHERE quantity>40
+
+SELECT customer_id
+FROM orders 
+JOIN order_details USING(order_id)
+WHERE quantity>40 --подзапрос 
+--------
+SELECT DISTINCT company_name
+FROM customers 
+WHERE customer_id= ANY (SELECT customer_id FROM orders 
+					   JOIN order_details USING(order_id)
+					   WHERE quantity>40)
+-----
+SELECT DISTINCT product_name,quantity
+FROM products
+JOIN order_details USING(product_id)
+WHERE quantity>(
+SELECT AVG(quantity)
+FROM order_details)
+ORDER BY quantity
+---------
+SELECT DISTINCT product_name,quantity
+FROM products
+JOIN order_details USING (product_id)
+WHERE quantity>ALL(SELECT AVG(quantity) кол-во больше чем всё что есть в подзапросе мы выводим
+FROM order_details
+GROUP BY product_id)
+---------------
+SELECT DISTINCT product_name,quantity
+FROM products
+JOIN order_details USING (product_id)
+WHERE quantity>ANY(SELECT AVG(quantity)
+FROM order_details
+GROUP BY product_id)
+-------
+SELECT product_name,units_in_stock
+from products
+WHERE units_in_stock = 10
+order by productc_name
+-------
+SELECT DISTINCT product_name,units_in_stock,quantity
+FROM products
+JOIN order_details USING (product_id)
+WHERE quantity<ALL(SELECT AVG(quantity)
+					FROM order_details
+					GROUP BY product_id
+				   
+				   ) 
+
+----------------
+первое задание
+----------------
+SELECT DISTINCT product_name,units_in_stock
+FROM products
+WHERE units_in_stock<ALL(SELECT AVG(quantity)
+				FROM order_details
+				GROUP BY product_name/id
+						) 
+
+--------------
+четвёртое задание в двух вариантах 
+--------------
+SELECT DISTINCT product_id,quantity
+FROM order_details 
+WHERE quantity = ALL(SELECT (quantity)
+			FROM order_details
+			WHERE quantity = 10)
+
+
+SELECT DISTINCT product_name,quantity
+FROM products
+JOIN order_details USING(product_id)
+WHERE quantity = 10
+
+--------------
+
+
+ALTER TABLE student
+DROP COLUMN middle_name;
+
+ALTER TABLE profession
+RENAME TO academic_specialty
+
+ALTER TABLE academic_specialty
+RENAME TO profession_id TO
+academic_specialty_id
+
+ALTER TABLE academic_specialty
+RENAME profession_name TO
+academic_specialty_name
+
+ALTER TABLE student 
+ALTER COLUMN first_name SET DATA TYPE varchar(64);
+
+ALTER TABLE student
+ALTER COLUMN last_name SET DATA TYPE varchar(64);
+
+ALTER TABLE student
+ALTER COLUMN phone SET DATA TYPE varchar(64);
+------------------------
+
+create table test(test_id serial,test_1 varchar);
+insert into test(test_1)
+VALUES ('ggwp'),
+('np,gj,ns'),
+('cry here \___/ african childs need water');
+------
+TRUNCATE TABLE test -удаление таблицы особенное очищает таблицу и продолжает id
+TRUNCATE TABLE test RESTART IDENTITY
+
+-______________________________________________________________________________________-
+1------------------ 
+CREATE TABLE teacher(
+teacher_id serial,
+first_name varchar,
+last_name varchar,
+birthday date,
+phone varchar,
+title varchar
+);
+DROP TABLE teacher
+DROP TABLE exam
+2-------------------
+ALTER TABLE teacher
+ADD COLUMN middle_name varchar
+3-----------------
+ALTER TABLE teacher 
+DROP COLUMN middle_name
+
+4-----------------
+ALTER TABLE teacher
+RENAME birthday TO birth_date
+5---------------
+ALTER TABLE teacher
+ALTER COLUMN phone SET DATA TYPE varchar(32);
+6---------------
+CREATE TABLE exam(
+exam_id serial,
+exam_name varchar(256),
+exam_date date);
+7----------------
+INSERT INTO exam(exam_name,exam_date)
+VALUES
+('matesha','2020-07-07'),
+('geografia','2020-08-08'),
+('biologia','2020-09-09');
+8----------------
+SELECT *
+FROM exam
+9---------------
+TRUNCATE TABLE exam RESTART IDENTITY
+10----------------
+
+_------------------------------------------------------------------------------------------------------------------------_
+INSERT INTO academic_speciality
+VALUES (1,'name','A')
+SELECT * FROM academic_speciality
+INSERT INTO academic_speciality 
+VALUES(1,'name2','B') 
+--------------------------------------------------
+CREATE TABLE academic_specialty(
+academic_specialty_id int NOT NULL UNIQUE, - присвойка ключа
+academic_specialty_name varchar,
+teacher varchar) 
+---------------------------------------------
+SELECT constraint_name
+FROM information_schema.key_column_usage
+WHERE table_name = 'academic_specialty' AND table_schema = 'public' AND column_name = 'academic_specialty_id'
+-------------------------------------------
+CREATE TABLE academic_specialty(
+academic_specialty_id serial,
+academic_specilaty_name varchar,
+teacher varchar,
+CONSTRAINT PK_academic_specialty_id PRIMARY KEY(academic_specialty_id))
+--------------------------------------
+ALTER TABLE academic_specialty
+DROP CONSTRAINT PK_academic_specialty_id -- удаление
+
+ALTER TABLE academic_specialty
+ADD PRIMARY KEY(academic_specialty_id) -- добавление
+-----------------------
+СONSTRAIN FK_publisher_id FOREING KEY(book_id) REFERENSECE 
+--------------------------------------
+ALTER TABLE book
+ADD COLUMN price decimal CONSTRAINT CHK_book_price CHECK(price>=0) - чтобы были все больше 0
+ALTER TABLE book
+ADD COLUMN launguage text DEFAULT 'ENG' - чтобы где не было значений был дефолт по стандарту которое указали МЫ
+CONSTRAINT -ограничение 
+можно дропнуть и добавить
+-------------------------------------
+CREATE SEQUENCE seq1
+SELECT nextval('seq1') --следующие знач
+SELECT curval('seq1') -- текущее значение (в любой)
+SELECT lastval() -- последнее
+SEQUENCE - последовательность
+SELECT nextval,lastval,curval('seq1')
+
+
+NOT EXISTS - если нету
+-------------------------------------
+
+CREATE SEQUENCE seq1
+SELECT setval('seq1',16,true)
+SELECT setval('seq1',16,false) если true то с 16 cразу, false - со следующего(17)
+SELECT nextval('seq1')
+SELECT currval('seq1')
+-------------------------------------------------------
+CREATE SEQUENCE IF NOT EXISTS seq2 INCREMENT 16;
+SELECT nextval('seq2')
+
+CREATE SEQUENCE IF NOT EXISTS seq3
+INCREMENT 16 - по сколько
+MINVALUE 0 минималка
+MAXVALUE 128 максималка
+START WITH 0 начало с 
+SELECT nextval('seq3')
+
+ALTER SEQUENCE seq3 RENAME TO seq4 переименовка
+ALTER SEQUENCE seq4 RESTART WITH 16 рестарт до 16
+
+SELECT nextval('seq4')
+
+DROP SEQUENCE seq4 - удаление
+-----------------------------
+CREATE TABLE book
+(
+book_id int NOT NULL,
+title text NOT NULL,
+isbn varchar(32)NOT NULL,
+publisher_id int NOT NULL,
+CONSTRAINT PK_book_book_id PRIMARY KEY(book_id)
+);
+
+CREATE SEQUENCE book_book_id_seq
+START WITH 1 OWNED BY book.book_id;
+
+ALTER TABLE book
+ALTER COLUMN book_id SET DEFAULT nextval('book_book_id_seq')
+------------------------------------------------------
+book_id GENERATED ALWAYS AS IDENTITY NOT NULL,
+INSERT INTO book
+OVERRIDING SYSTEM VALUE
+VALUES()
+
+book_id int GENERATED ALWAYS AS IDENTITY(START WITH 10 INCREMENT BY 3) условие с огр.
+NOT NULL,
+
+CREATE TABLE book
+(
+book_id int GENERATED ALWAYS AS IDENTITY(START WITH 10 INCREMENT BY 3)NOT NULL,
+title text NOT NULL,
+isbn varchar(32)NOT NULL,
+publisher_id int NOT NULL,
+CONSTRAINT PK_book_book_id PRIMARY KEY(book_id)
+);
+
+INSERT INTO book(title,isbn,publisher_id)
+VALUES 
+('123',2,34)
+SELECT *
+FROM book
+-----------------------------------------------------
+SELECT *
+INTO book_1
+FROM book
+WHERE book_id>5
+SELECT book_id
+FROM book_1
+INSERT INTO book_1
+SELECT *
+FROM book
+WHERE book_id>5
+--------------------------------------------
+SELECT *
+FROM publisher
+
+UPDATE publisher 
+SET name = 'Booking' , address = 'Boston'
+WHERE publisher_id = 1
+
+DELETE FROM publisher
+WHERE publisher_id >4
+
+DELETE FROM publisher 
+TRUNCATE TABLE publisher
+--------------------------------------
+CREATE TABLE book(
+book_id serial,
+title text NOT NULL,
+isbn varchar(32)NOT NULL,
+publisher_id int NOT NULL,
+CONSTRAINT PK_book_book_id PRIMARY KEY(book_id));
+
+INSERT INTO book(title,isbn,publisher_id)
+VALUES ('title','isbn',3)
+RETURNING *
+
+UPDATE publisher 
+SET name='Academy',address='NY'
+WHERE publisher_id = 1
+RETURNING *
+--------------------------------------
+инкреминтировать - последоватьльность serial 
+------------------------------------ ЗАДАЧКИ
+------------------1
+DROP TABLE exam;
+CREATE TABLE exam(
+	exam_id serial NOT NULL UNIQUE,
+	exam_name varchar(32),
+	exam_date date,
+	CONSTRAINT exam_exam_id PRIMARY KEY(exam_id)
+)
+------------------2
+ALTER TABLE exam
+DROP CONSTRAINT exam_exam_id
+------------------3
+ALTER TABLE exam
+ADD PRIMARY KEY(exam_id)
+------------------4
+DROP TABLE person 
+CREATE TABLE person
+(
+person_id int,
+person_name varchar(32),
+person_last_name varchar(32),
+CONSTRAINT person_person_id PRIMARY KEY(person_id)
+)
+------------------5
+--DROP TABLE passport
+CREATE TABLE passport(
+passport_id int,
+serial_number int NOT NULL,
+register text,
+FOREIGN KEY (passport_id) REFERENCES person(person_id)
+)
+-------------------6
+
+ALTER TABLE book
+ADD COLUMN weight
+ADD CHECK (weight>=0 AND weight<=100)
+-------------------7
+INSERT INTO book(title,isbn,publisher_id,weight)
+VALUES
+('title2','isbn2',3,1),
+('title3','isbn2',3,102)
+------------------8
+DROP TABLE student
+CREATE TABLE student(
+studen_id serial,
+full_name text,
+course int DEFAULT 1)
+------------------9
+INSERT INTO student(full_name)
+VALUES 
+('OLEG'),
+('DIMA'),
+('Peticantrop')
+SELECT *
+FROM student
+------------------10
+ALTER TABLE student
+ALTER COLUMN course DROP DEFAUL
+---------------11
+ALTER TABLE products
+ADD CHECK (unit_price>0)
+----------------12
+--CREATE SEQUENCE seq1;
+SELECT setval ('seq1',77,false)
+SELECT nextval('seq1')
+ALTER TABLE products
+ALTER COLUMN product_id SET DEFAULT nextval('seq1')
+-----------------------------------------------------------------------------------
+CREATE VIEW products_suppliers_categories AS
+SELECT product_name,quantity_per_unit,unit_price,units_in_stock,company_name,contact_name,phone,category_name,description 
+FROM products
+JOIN suppliers USING(supplier_id)
+JOIN categories USING (category_id) ---- создание 
+
+SELECT *
+FROM products_suppliers_categories --- выбор того чего нужно
+WHERE unit_price>20
+
+DROP VIEW products_suppliers_category --удаление
+--------------------------------------------------------------------
+CREATE VIEW heavy_orders AS
+SELECT *
+FROM orders 
+WHERE freight > 50
+
+CREATE OR REPLACE VIEW heavy_orders AS - создать или пересоздать 
+SELECT *
+FROM heavy_orders -откуда смотреть собираешься 
+WHERE freight >100 - ну тут вроде и так всё понятно
+--------------------------------------------------------------------------------------------------
+
+CREATE OR REPLACE VIEW products_suppliers_categories AS
+SELECT product_name,quantity_per_unit,unit_price,units_in_stock,discontinued,company_name,contact_name,phone,country,category_name,description 
+FROM products
+JOIN suppliers USING(supplier_id)
+JOIN categories USING (category_id)  -- так низя делать понял!!! впихивать в центр низя ток в конец
+
+ALTER VIEW products_suppliers_categories RENAME TO psc_old --переименовка и твори что хош ^_^
+
+-------------------------------------------------
+INSERT INTO heavy_orders
+VALUES (11078,'VINET',5,'2020-12-10','2019-12-15','2020-12-14',3,120,'Hanari Carnes','Rua do Paco','Bern',null,3012,'Switzerland')
+
+SELECT *
+FROM heavy_orders |или| orders
+ORDER BY order_id DESC
+
+SELECT MIN(freight)
+FROM heavy_orders
+
+SELECT *
+FROM heavy_orders
+ORDER BY freight DESC
+
+DELETE FROM heavy_orders
+WHERE freight > 900
+--------------------------------------------------
+SELECT *
+FROM heavy_orders
+ORDER BY freight --находим
+
+INSERT INTO heavy_orders
+VALUES(11900,'FOLIG',1,'2020-12-14','2020-12-20','2020-12-19',1,80,'Folies gournades','184,chaussee de Tournal',
+	   'Lille',NULL,5900,'FRANCE')
+	  	  --засовываем
+SELECT *
+FROM heavy_orders
+WHERE order_id = 11900 -- проверям тут не будет тк вес должен быть больше 100
+
+SELECT *
+FROM orders
+WHERE order_id=11900 -- а тута всё будет тк не ограничения
+-----------------------------------------------
+CREATE OR REPLACE VIEW heavy_orders AS
+SELECT *
+FROM orders
+WHERE freight>100
+WITH LOCAL CHECK OPTION -- каждый раз как вставляем запись, НЕ СРАБОТАЕТ ТАК стоит ограничение :)
+
+INSERT INTO heavy_orders
+VALUES(11903,'FOLIG',1,'2020-12-14','2020-12-20','2020-12-19',1,80,'Folies gournades','184, chaussee de TournaL','Lille',NULL,5900,'FRANCE')
+
+----------------------------------------------------------------
+------------------------------1
+CREATE VIEW ggwp AS
+SELECT order_date,required_date,shipped_date,ship_postal_code,company_name,contact_name,phone,last_name,first_name,title,customers,employees
+FROM orders
+JOIN customers USING(customer_id)
+JOIN employees USING(employee_id)
+
+SELECT *
+FROM ggwp
+WHERE order_date > '1997-01-01'
+-------------------------------2
+CREATE VIEW ggwp2 AS
+SELECT order_date,required_date,shipped_date,ship_postal_code,ship_country,company_name,contact_name,phone,last_name,first_name,title,customers,employees,postal_code,report_to
+FROM orders
+JOIN customers USING(customer_id)
+JOIN employees USING(employee_id)
+
+ALTER VIEW ggwp2 RENAME TO ggwp3
+
+SELECT order_date,required_date,shipped_date,ship_postal_code,ship_country,company_name,contact_name,phone,last_name,first_name,title,customers,employees,customers.postal_code,reports_to
+FROM orders
+JOIN customers USING(customer_id)
+JOIN employees USING(employee_id)
+ORDER BY ship_country
+
+DROP VIEW ggwp3
+---------------------------------------------------------------------------------------------------------------
+CASE WHEN 
+
+CASE
+	WHEN condition_1 THEN result_1 -- какое-то условие выполняется 
+	WHEN condition_2 THEN result_2
+	ELSE... -- не выполняются все 
+END -- и так понятно
+-----------------------------------
+SELECT product_name,unit_price,units_in_stock,
+CASE 
+WHEN units_in_stock>=100 THEN 'lost of'
+WHEN units_in_stock>=50 AND units_in_stock < 100 THEN 'average'
+ELSE 'low number'
+END AS amount --дали название всему столбцу - case(4) AS надо для обьявления 4 столбца тк его нет в SELECT
+FROM products 
+ORDER BY units_in_stock DESC
+--------------------------------------------
+SELECT product_name,unit_price,units_in_stock,
+CASE 
+WHEN units_in_stock>=100 THEN 'too expensive'
+WHEN units_in_stock>=50 AND units_in_stock < 100 THEN 'average'
+ELSE 'low price'
+END AS ggwp8
+FROM products
+COALESCE and NULLIF 
+
+COALESCE(arg1,arg2,...); если первый аргумет если это null то заменяет его на аргумет 2 
+
+NULLIF(arg1,arg2)- если не равны то NULL, если равны тоже оба то тоже NULL
+-----------------------------SELECT *
+FROM orders
+LIMIT 10
+
+SELECT order_id,order_date,COALESCE(ship_region,'unknown')
+FROM orders
+LIMIT 10 замена нулов на значение в кавычках
+
+SELECT *
+FROM employees
+
+SELECT last_name,first_name,COALESCE(region,'N/A') as region
+FROM employees
+
+------------------------------------------
+SELECT *
+FROM customers
+											''-пустая строка
+SELECT contact_name,COALESCE(NULLIF(city,'Berlin'),'Unknow') AS city
+FROM сustomers
+-------------------------------------------
+INSERT INTO budgets(current_year,previous_year)
+VALUES
+(10000,150000),
+(Null,300000),
+(0,100000),
+(NULL,150000),
+(300000,250000),
+(170000,170000),
+(150000,NULL);
+					TO_CHAR -преобразует значение в строку       FM99999999 - формат 
+SELECT dept,COALESCE(TO_CHAR(NULLIF(current_year,previous_year),'FM99999999'),'Same as last year') AS budget 
+FROM budgets
+WHERE current_year is not null
+
+------------------------------1
+INSERT INTO customers(customer_id,contact_name,city,country,company_name)
+VALUES
+('AAAAA','Alfred Mann',NULL,'USA','fake_company'),
+('BBBBB','Alfred Mann',NULL,'Austria','fake_company');
+
+SELECT contact_name,country,city
+FROM customers
+ORDER BY contact_name,
+CASE WHEN city IS null THEN country
+ELSE city
+END 
+------------------------------2
+SELECT product_name,unit_price,units_in_stock,
+CASE 
+WHEN units_in_stock>=100 THEN 'too expensive'
+WHEN units_in_stock>=50 AND units_in_stock < 100 THEN 'average'
+ELSE 'low price'
+END AS ggwp8
+FROM products
+-----------------------------3
+SELECT contact_name,COALESCE(order_id::text,'no orders') AS no_orders
+FROM customers
+LEFT JOIN orders USING(customer_id)
+-----------------------------4
+SELECT last_name,first_name,COALESCE(NULLIF(title,'Sales Representative'),'Sales Stuff') 
+FROM employees
+----------------------------------------------------------------------------------------------------
+SELECT *
+FROM customers
+
+SELECT *
+INTO test_customers -- создание копии таблицы
+FROM customers
+
+SELECT *
+FROM test_customers
+
+UPDATE test_customers 
+SET region='unknow'
+WHERE region IS NULL
+--------------------------------------
+CREATE OR REPLACE FUNCTION fix_customer_region()RETURNS void AS $$
+	UPDATE test_customers
+	SET region = 'unknow'
+	WHERE region IS NULL
+$$ LANGUAGE SQL
+
+SELECT fix_customer_region()
+
+SELECT *
+FROM test_customers
+-----------------------------------------------------
+CREATE OR REPLACE FUNCTION total_goods()RETURNS bigint AS $$
+	SELECT SUM(units_in_stock)
+	FROM products
+$$ LANGUAGE SQL
+
+SELECT total_goods()- вывели сумму товаров 
+
+CREATE OR REPLACE FUNCTION avg_price()RETURNS float AS $$
+	SELECT AVG(unit_price)
+	FROM products
+$$ LANGUAGE SQL
+
+SELECT avg_price()
+------------------------------------------------------
+CREATE OR REPLACE FUNCTION get_product_price_by_name(prod_name varchar) RETURNS real AS $$
+SELECT unit_price
+FROM products
+WHERE product_name=prod_name
+$$ LANGUAGE SQL
+
+SELECT get_product_price_by_name('Chocolade') AS price --дали название 
+---------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION get_price_boundaries(OUT max_price real,OUT min_price real) AS $$
+SELECT MAX(unit_price),MIN (unit_price)
+FROM products
+$$ LANGUAGE SQL 
+
+SELECT get_price_boundaries() -- всё в одной ячейке
+
+SELECT * FROM get_price_boundaries()  -- 2 столбца 
+-----------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION get_price_boundaries_disc(IN is_discontinued int,OUT max_price real,OUT min_price real) AS $$
+SELECT MAX(unit_price),MIN (unit_price)
+FROM products
+WHERE discontinued=is_discontinued
+$$ LANGUAGE SQL
+
+SELECT * FROM get_price_boundaries_disc(1)
+------------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION get_price_boundaries_disc(is_discontinued int DEFAULT 1,OUT max_price real,OUT min_price real) AS $$
+SELECT MAX(unit_price),MIN (unit_price)
+FROM products
+WHERE discontinued=is_discontinued
+$$ LANGUAGE SQL
+
+SELECT * FROM get_price_boundaries_disc()
+-- тоже самое что и выше,но он проще так-как указан дефолт
+--------------------------------------------------------------------------
+CREATE FUNCTION get_avg_prod_categories() RETURNS SETOF double precision AS $$
+SELECT AVG(unit_price)
+FROM products
+GROUP BY category_id
+$$ laNGUAGE SQL
+
+SELECT * FROM get_avg_prod_categories()
+
+---СКАЛЯРНАЯ ФУнКЦИЯ ДЛЯ МноЖЕСТВА стРОК
+-------------------------------------
+CREATE FUNCTION get_avg_price_prod_cats(OUT sum_price real,OUT avg_price float8) RETURNS SETOF RECORD AS $$
+SELECT SUM(unit_price),AVG(unit_price)
+FROM products
+GROUP BY category_id
+$$ laNGUAGE SQL
+
+DROP FUNCTION get_avg_price_by_prod_cats
+
+SELECT sum_price,avg_price 
+FROM get_avg_price_prod_cats()
+----------------------------------------------------------------
+CREATE FUNCTION get_avg_price_prod_cats RETURNS SETOF RECORD AS $$
+SELECT SUM(unit_price),AVG(unit_price)
+FROM products
+GROUP BY category_id
+$$ laNGUAGE SQL
+
+DROP FUNCTION get_avg_price_prod_cats
+
+
+SELECT sum_price,avg_price 
+FROM get_avg_price_prod_cats()
+
+-- низя так делать это не работает
+--------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION get_customers_by_country(customer_country varchar) RETURNS TABLE(char_code char,company_name varchar) AS $$
+SELECT customer_id,company_name
+FROM customers
+WHERE country=customer_country
+$$ LANGUAGE SQL 
+-- cначала входящие потом выходящие в (returns)
+SELECT * FROM get_customers_by_country('USA')
+
+DROP FUNCTION get_customers_by_country
+---------------------------------------------------------------
+CreATe or REplace FuncTION get_customers_by_country(customer_country varchar) RETUrns SetoF customers AS $$
+SELECT customer_id,company_name
+FROM customers
+WHEre country=customer_country
+$$ LANGUAGE SQL
+--воспринимает таблицу как тип данных низя так дилать
+-------------------------------------------------------------------------
+
+CREATE FUNCTION avg_price()RETURNS float AS $$
+	SELECT AVG(freight)
+	FROM orders
+$$ LANGUAGE SQL
+
+SELECT avg_price()
+
+DROP FUNCTION avg_price
+---------------------------------------------------------------------------------------
+----------------------------2
+CREATE FUNCTION avg_price1()RETURNS float AS $$
+	SELECT AVG(freight)
+	FROM orders
+$$ LANGUAGE SQL
+
+SELECT avg_price1()
+
+DROP FUNCTION avg_price1
+-----------------------------3
+CREATE OR REPLACE FUNCTION get_salary(OUT max_salary text,OUT min_salary text, IN is_city text) AS $$
+SELECT MAX(extension),MIN(extension)
+FROM employees
+WHERE city=is_city
+$$ LANGUAGE SQL
+DROP FUNCTION get_salary
+SELECT * FROM get_salary('Tacoma')
+--------------------------------------------------------------------------------------------
+CREATE FUNCTION get_total_number_of_goods() RETURNS real AS $$
+BEGIN 
+RETURN MAX(units_in_stock)
+FROM products
+WHERE discontinued=1;
+END;
+$$ LANGUAGE plpgsql
+
+SELECT get_total_number_of_goods()
+-----------------------------------------------------
+CREATE FUNCTION get_price_boundsries(OUT max_price real,OUT min_price real) AS $$
+BEGIN 
+max_price:=MAX(unit_price) FROM products;
+min_price:=MIN(unit_price) FROM products;
+END;
+$$ LANGUAGE plpgsql
+
+SELECT get_price_boundsries()
+----------------------------------------------------
+CREATE FUNCTION get_price_boundsries(OUT max_price real,OUT min_price real) AS $$
+BEGIN 
+SELECT MAX(unit_price),MIN(unit_price);
+INTO max_price,min_price; -- низя объявлять select тока returns 
+FROM products;
+END;
+$$ LANGUAGE plpgsql
+DROP FUNCTION get_price_boundsries
+
+SELECT get_price_boundsries()
+------------------------------------------------------
+CREATE OR REPLACE FUNCTION get_customers_by_country(customer_country varchar) RETURNS SETOF customers AS $$
+BEGIN 
+RETURN QUERY - объявляем выборку(select)
+SELECT *
+FROM customers
+WHERE country = customer_country;
+END;
+$$ LANGUAGE plpgsql
+
+SELECT * FROM get_customers_by_country('USA')
+-------------------------------------------------------------------
+DECLARE 
+variable type; -объявление переменной
+-----------------------------------------
+CREATE or REPLACE FUNCTION middle_price()RETURNS SETOF products AS $$
+DECLARE
+avg_price real;
+low_price real;
+high_price real;
+BEGIN
+SELECT AVG(unit_price) INTO avg_price
+FROM products;
+low_price = avg_price*0.75;
+high_price = avg_price*1.25;
+RETURN QUERY
+SELECT * FROM products
+WHERE unit_price BETWEEN low_price AND high_price;
+END;
+$$ LANGUAGE plpgsql
+
+SELECT * FROM middle_price()
+-------------------------------------------------
+CREATE FUNCTION convert_temp(temp real,cels bool DEFAULT true) RETURNS real AS $$
+DECLARE 
+result_temp real;
+BEGIN 
+IF cels THEN
+result_temp=(5/9)*(temp-32);
+ELSE 
+result_temp=(9*temp+(32*5))/5;
+END IF;
+RETURN result_temp;
+END;
+$$ LANGUAGE plpgsql
+
+SELECT convert_temp(80);
+
+SELECT convert_temp(26.6667,false)
+-----------------------------------------------------
+DO $$
+BEGIN
+FOR counter IN 1..5
+LOOP 
+RAISE NOTICE 'Counter:%',counter;
+END LOOP;
+END$$;
+ 
+DO $$
+BEGIN 
+FOR counter IN REVERSE 5..1
+LOOP 
+RAISE NOTICE'Counter:%',counter;
+END LOOP;
+END$$;
+-----------------------------
+

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="144" height="35" viewBox="0 0 144 35">
+  <g id="CHOOSE_COLOR" data-name="CHOOSE COLOR" transform="translate(-531 -1480)">
+    <g id="Rectangle_29" data-name="Rectangle 29" transform="translate(531 1480)" fill="#fff" stroke="#eaeaea" stroke-linejoin="round" stroke-width="1">
+      <rect width="144" height="35" stroke="none"/>
+      <rect x="0.5" y="0.5" width="143" height="34" fill="none"/>
+    </g>
+    <text id="Red" transform="translate(579 1502)" fill="#bcbcbc" font-size="13" font-family="SegoeUI, Segoe UI"><tspan x="-10.924" y="0">Red</tspan></text>
+    <rect id="Rectangle_30" data-name="Rectangle 30" width="12" height="12" transform="translate(545 1491)" fill="#ef5b70"/>
+  </g>
+</svg>

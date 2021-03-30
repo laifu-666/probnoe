@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="537" height="55" viewBox="0 0 537 55">
+  <g id="Add_to_cart" data-name="Add to cart" transform="translate(-532 -1543)">
+    <g id="Rectangle_31" data-name="Rectangle 31" transform="translate(532 1543)" fill="#fff" stroke="#ef5b70" stroke-linejoin="round" stroke-width="1">
+      <rect width="537" height="55" stroke="none"/>
+      <rect x="0.5" y="0.5" width="536" height="54" fill="none"/>
+    </g>
+    <path id="Forma_1_copy" data-name="Forma 1 copy" d="M744.48,1580.78a2.18,2.18,0,1,1,2.18,2.22A2.2,2.2,0,0,1,744.48,1580.78ZM760.286,1583a2.219,2.219,0,1,1,2.18-2.38,2.242,2.242,0,0,1-.529,1.615,2.161,2.161,0,0,1-1.49.766Zm-12.711-6.88a.964.964,0,0,1-.93-.717l-3.927-14.445h-2.758a.978.978,0,0,1,0-1.957h3.479a.965.965,0,0,1,.93.717l3.927,14.445H759l3.558-8.315H750.7a.978.978,0,0,1,0-1.957h13.335a.951.951,0,0,1,.8.441,1,1,0,0,1,.08.929l-4.391,10.272a.963.963,0,0,1-.882.587Z" fill="#ef5b70"/>
+    <text id="Add_to_Cart-2" data-name="Add to Cart" transform="translate(780 1577)" fill="#ef5b70" font-size="16" font-family="SegoeUI, Segoe UI"><tspan x="0" y="0">Add to Cart</tspan></text>
+  </g>
+</svg>

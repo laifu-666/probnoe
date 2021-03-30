@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="153" height="30" viewBox="0 0 153 30">
+  <g id="Sort_By" data-name="Sort By" transform="translate(-531 -495)">
+    <g id="Rectangle_29" data-name="Rectangle 29" transform="translate(531 495)" fill="#fff" stroke="#ebebeb" stroke-linejoin="round" stroke-width="1">
+      <rect width="153" height="30" stroke="none"/>
+      <rect x="0.5" y="0.5" width="152" height="29" fill="none"/>
+    </g>
+    <text id="Name" transform="translate(608 515)" fill="#6f6e6e" font-size="14" font-family="SegoeUI, Segoe UI"><tspan x="0" y="0">Name</tspan></text>
+    <text id="Sort_By-2" data-name="Sort By" transform="translate(544 515)" fill="#6f6e6e" font-size="14" font-family="SegoeUI, Segoe UI"><tspan x="0" y="0">Sort By</tspan></text>
+    <g id="Shape_8" data-name="Shape 8" transform="translate(597 496)" fill="#ef5b70" stroke="#ebebeb" stroke-linejoin="round" stroke-width="1">
+      <rect width="1" height="28" stroke="none"/>
+      <rect x="0.5" y="0.5" height="27" fill="none"/>
+    </g>
+  </g>
+</svg>
